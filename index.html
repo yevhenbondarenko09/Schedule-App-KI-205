@@ -6,7 +6,7 @@
     <title>Розклад КІ-205</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -31,20 +31,20 @@
             font-family: 'Montserrat', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            min-height: 100vh;
-            padding-bottom: 60px; /* Increased bottom padding */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent body scroll, handle in containers */
         }
 
-        /* --- Header & Controls --- */
+        /* --- Header --- */
         header {
-            background-color: rgba(46, 54, 90, 0.98);
-            padding: 20px 20px 15px;
-            position: sticky;
-            top: 0;
+            background-color: var(--bg-color);
+            padding: 15px 20px;
             z-index: 100;
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(150, 164, 197, 0.15);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(150, 164, 197, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .top-bar {
@@ -57,23 +57,20 @@
         .current-time {
             font-size: 1.2rem;
             font-weight: 700;
-            color: var(--text-main);
         }
 
         .date-info {
             font-size: 0.85rem;
             color: var(--soft-blue);
             text-align: right;
-            line-height: 1.4;
         }
 
         .controls-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
         }
 
-        /* --- Toggles --- */
         .toggle-container {
             background: rgba(0,0,0,0.25);
             border-radius: 50px;
@@ -86,68 +83,75 @@
             background: transparent;
             border: none;
             color: var(--soft-blue);
-            padding: 10px 0; /* Slightly larger touch target */
+            padding: 8px 0;
             font-size: 0.75rem;
             font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.25s ease;
-            text-align: center;
         }
 
         .toggle-btn.active {
             background-color: var(--secondary-color);
             color: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .toggle-btn.subgroup-active {
             background-color: var(--accent-pink);
             color: white;
-            box-shadow: 0 2px 8px rgba(224, 121, 127, 0.3);
         }
 
-        /* --- Schedule List --- */
-        .container {
-            padding: 10px 20px;
-            max-width: 600px;
-            margin: 0 auto;
+        /* --- Main Carousel Container --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* Task 2: Improved Visual Day Separation */
-        .day-card {
-            margin-top: 40px; /* Critical Fix: Adds breathing room between days */
-            animation: fadeIn 0.5s ease;
+        /* The Scroll Snap Track */
+        #schedule-carousel {
+            flex: 1;
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden; /* Lock vertical scroll on track */
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+        #schedule-carousel::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
         }
 
-        /* Remove margin from the very first day to sit nice under header */
-        .day-card:first-child {
-            margin-top: 20px;
+        /* --- Slide (Day) Styles --- */
+        .day-slide {
+            flex: 0 0 100%; /* Full width */
+            width: 100%;
+            scroll-snap-align: start;
+            overflow-y: auto; /* Vertical scroll inside the slide */
+            padding: 20px;
+            padding-bottom: 60px; /* Space for dots */
         }
 
         .day-header {
             display: flex;
             align-items: center;
-            margin-bottom: 16px;
-            padding-left: 12px;
+            margin-bottom: 20px;
+            padding-left: 15px;
             border-left: 5px solid var(--soft-blue);
         }
 
         .day-header h2 {
-            font-size: 1.4rem; /* Critical Fix: Larger font */
-            font-weight: 800;  /* Critical Fix: Bolder font */
+            font-size: 1.8rem;
+            font-weight: 800;
             margin-right: 12px;
-            color: var(--text-main);
             letter-spacing: -0.5px;
         }
 
-        .day-header.is-today h2 {
-            color: var(--accent-pink);
-        }
-        
-        .day-header.is-today {
-            border-left-color: var(--accent-pink);
-        }
+        .day-header.is-today h2 { color: var(--accent-pink); }
+        .day-header.is-today { border-left-color: var(--accent-pink); }
 
         .label-today {
             font-size: 0.75rem;
@@ -157,63 +161,49 @@
             border-radius: 20px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        /* --- Lesson Card Styles --- */
+        /* --- Lesson Card (Redesigned) --- */
         .lesson-card {
             background-color: var(--card-bg);
             border-radius: 20px;
-            padding: 18px; /* Slightly more padding */
-            margin-bottom: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
             border: 1px solid rgba(150, 164, 197, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            /* Layout is now flow-based, not absolute */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .lesson-card:active {
-            transform: scale(0.98);
-        }
-
-        /* Task 1: Fix Text Overlap via Flexbox */
+        /* Flex container for Subject + Time */
         .lesson-header-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; /* Aligns top so multi-line text doesn't center the time */
-            gap: 15px; /* Minimum space between text and time */
-            margin-bottom: 10px;
+            align-items: center; /* Center vertically relative to text */
+            gap: 15px;
+            margin-bottom: 12px;
         }
 
         .lesson-subject {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            line-height: 1.35;
+            line-height: 1.4;
             color: var(--text-main);
             
-            /* Critical Fix: Handling overflow flex-item behavior */
-            flex: 1;        /* Take up remaining space */
-            min-width: 0;   /* Allow shrinking below content size if needed */
-            
-            /* Truncate nicely with ellipsis on 2nd line if needed */
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            /* CHANGE: Allow full wrapping */
+            flex: 1;
+            white-space: normal; 
+            word-wrap: break-word;
         }
 
         .lesson-time {
-            /* Critical Fix: Prevent time from shrinking or wrapping */
+            /* CHANGE: Fixed width/shrink behavior */
             flex-shrink: 0;
-            white-space: nowrap;
-            
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: var(--soft-blue);
             background: rgba(0,0,0,0.25);
-            padding: 6px 12px;
+            padding: 8px 12px;
             border-radius: 12px;
-            height: fit-content;
+            white-space: nowrap;
         }
 
         .tags {
@@ -229,7 +219,6 @@
             border-radius: 8px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .tag.lecture { background-color: rgba(108, 94, 130, 0.3); color: #C4B5D6; border: 1px solid var(--secondary-color); }
@@ -247,33 +236,50 @@
             padding-top: 10px;
         }
 
-        .detail-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .detail-icon { opacity: 0.7; font-size: 1.1em; }
-
-        /* Free Window State */
         .free-window {
-            background-color: transparent;
             border: 2px dashed rgba(150, 164, 197, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
+            text-align: center;
+            padding: 30px;
             color: var(--text-muted);
             font-style: italic;
         }
 
-        /* Utilities */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- Carousel Indicators (Dots) --- */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            z-index: 50;
+            pointer-events: none; /* Let clicks pass through if needed, though usually dots are clickable */
         }
 
-        .hidden { display: none !important; }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: var(--accent-pink);
+            transform: scale(1.3);
+        }
+
+        /* Empty state helper */
+        .empty-day-msg {
+            text-align: center;
+            margin-top: 50px;
+            color: var(--soft-blue);
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
@@ -288,13 +294,10 @@
         </div>
 
         <div class="controls-grid">
-            <!-- Week Toggle -->
             <div class="toggle-container">
                 <button class="toggle-btn" id="btn-numerator" onclick="setWeekType('numerator')">Чисельник</button>
                 <button class="toggle-btn" id="btn-denominator" onclick="setWeekType('denominator')">Знаменник</button>
             </div>
-
-            <!-- Subgroup Toggle -->
             <div class="toggle-container">
                 <button class="toggle-btn" id="btn-sub1" onclick="setSubgroup(1)">Підгрупа 1</button>
                 <button class="toggle-btn" id="btn-sub2" onclick="setSubgroup(2)">Підгрупа 2</button>
@@ -302,133 +305,75 @@
         </div>
     </header>
 
-    <main class="container" id="schedule-container">
-        <!-- Content injected by JS -->
+    <main>
+        <!-- Horizontal Scroll Snap Container -->
+        <div id="schedule-carousel">
+            <!-- Slides injected by JS -->
+        </div>
+
+        <!-- Dots -->
+        <div class="carousel-indicators" id="dots-container"></div>
     </main>
 
     <script>
-        // --- 1. CONFIGURATION & DATA ---
+        // --- DATA & CONFIG ---
         const SEMESTER_START = new Date("2026-02-09T00:00:00"); 
         
         const scheduleData = [
           {
             day: "Понеділок",
             lessons: [
-              {
-                id: 1, time: "08:30 - 09:50", items: [
-                  { subject: "Алгоритми та моделі обчислень", type: "Lab", teacher: "Сєчко О.І.", room: "905 V н.к.", subgroup: 1, week: "both" },
-                  { subject: "Моделювання комп'ютерних систем", type: "Lab", teacher: "Будз І.С.", room: "907 V н.к.", subgroup: 2, week: "both" }
-                ]
-              },
-              {
-                id: 2, time: "10:05 - 11:25", items: [
-                  { subject: "Алгоритми та моделі обчислень", type: "Lab", teacher: "Сєчко О.І.", room: "905 V н.к.", subgroup: 2, week: "both" }
-                ]
-              },
-              {
-                id: 3, time: "11:40 - 13:00", items: [
-                  { subject: "Філософія", type: "Lecture", teacher: "Чурсінова О.Ю.", room: "411 I н.к.", subgroup: "both", week: "both" }
-                ]
-              },
-              {
-                id: 4, time: "13:15 - 14:35", items: [
-                  { subject: "Моделювання комп'ютерних систем", type: "Lab", teacher: "Будз І.С.", room: "907 V н.к.", subgroup: 1, week: "both" }
-                ]
-              }
+              { id: 1, time: "08:30 - 09:50", items: [ { subject: "Алгоритми та моделі обчислень", type: "Lab", teacher: "Сєчко О.І.", room: "905 V н.к.", subgroup: 1, week: "both" }, { subject: "Моделювання комп'ютерних систем", type: "Lab", teacher: "Будз І.С.", room: "907 V н.к.", subgroup: 2, week: "both" } ] },
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Алгоритми та моделі обчислень", type: "Lab", teacher: "Сєчко О.І.", room: "905 V н.к.", subgroup: 2, week: "both" } ] },
+              { id: 3, time: "11:40 - 13:00", items: [ { subject: "Філософія", type: "Lecture", teacher: "Чурсінова О.Ю.", room: "411 I н.к.", subgroup: "both", week: "both" } ] },
+              { id: 4, time: "13:15 - 14:35", items: [ { subject: "Моделювання комп'ютерних систем", type: "Lab", teacher: "Будз І.С.", room: "907 V н.к.", subgroup: 1, week: "both" } ] }
             ]
           },
           {
             day: "Вівторок",
             lessons: [
-              {
-                id: 1, time: "08:30 - 09:50", items: [
-                  { subject: "Системне програмування, частина 1", type: "Lecture", teacher: "Пуйда Д.В.", room: "512 V н.к.", subgroup: "both", week: "both" }
-                ]
-              },
-              {
-                id: 2, time: "10:05 - 11:25", items: [
-                  { subject: "Організація баз даних", type: "Lecture", teacher: "Колодчак О.М.", room: "906 V н.к.", subgroup: "both", week: "both" }
-                ]
-              },
-              {
-                id: 3, time: "11:40 - 13:00", items: [
-                  { subject: "Філософія", type: "Practical", teacher: "Панько О.І.", room: "902 V н.к.", subgroup: "both", week: "both" }
-                ]
-              }
+              { id: 1, time: "08:30 - 09:50", items: [ { subject: "Системне програмування, частина 1", type: "Lecture", teacher: "Пуйда Д.В.", room: "512 V н.к.", subgroup: "both", week: "both" } ] },
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Організація баз даних", type: "Lecture", teacher: "Колодчак О.М.", room: "906 V н.к.", subgroup: "both", week: "both" } ] },
+              { id: 3, time: "11:40 - 13:00", items: [ { subject: "Філософія", type: "Practical", teacher: "Панько О.І.", room: "902 V н.к.", subgroup: "both", week: "both" } ] }
             ]
           },
           {
             day: "Середа",
             lessons: [
-              {
-                id: 1, time: "08:30 - 09:50", items: [
-                  { subject: "Моделювання комп'ютерних систем", type: "Lecture", teacher: "Будз І.С.", room: "906 V н.к.", subgroup: "both", week: "both" }
-                ]
-              },
-              {
-                id: 2, time: "10:05 - 11:25", items: [
-                  { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 1, week: "numerator" },
-                  { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 2, week: "denominator" }
-                ]
-              }
+              { id: 1, time: "08:30 - 09:50", items: [ { subject: "Моделювання комп'ютерних систем", type: "Lecture", teacher: "Будз І.С.", room: "906 V н.к.", subgroup: "both", week: "both" } ] },
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 1, week: "numerator" }, { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 2, week: "denominator" } ] }
             ]
           },
           {
             day: "Четвер",
             lessons: [
-              {
-                id: 1, time: "08:30 - 09:50", items: [
-                  { subject: "Алгоритми та моделі обчислень", type: "Lecture", teacher: "Колодій З.О.", room: "906 V н.к.", subgroup: "both", week: "both" }
-                ]
-              },
-              {
-                id: 2, time: "10:05 - 11:25", items: [
-                  { subject: "Комп'ютерна схемотехніка", type: "Lab", teacher: "Черчик Г.Т.", room: "509 V н.к.", subgroup: 1, week: "both" },
-                  { subject: "Організація баз даних", type: "Lab", teacher: "Іванов Ю.С.", room: "505a2 V н.к.", subgroup: 2, week: "both" }
-                ]
-              },
-              {
-                id: 3, time: "11:40 - 13:00", items: [
-                  { subject: "Організація баз даних", type: "Lab", teacher: "Іванов Ю.С.", room: "505a2 V н.к.", subgroup: 1, week: "both" },
-                  { subject: "Комп'ютерна схемотехніка", type: "Lab", teacher: "Черчик Г.Т.", room: "509 V н.к.", subgroup: 2, week: "both" }
-                ]
-              }
+              { id: 1, time: "08:30 - 09:50", items: [ { subject: "Алгоритми та моделі обчислень", type: "Lecture", teacher: "Колодій З.О.", room: "906 V н.к.", subgroup: "both", week: "both" } ] },
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Комп'ютерна схемотехніка", type: "Lab", teacher: "Черчик Г.Т.", room: "509 V н.к.", subgroup: 1, week: "both" }, { subject: "Організація баз даних", type: "Lab", teacher: "Іванов Ю.С.", room: "505a2 V н.к.", subgroup: 2, week: "both" } ] },
+              { id: 3, time: "11:40 - 13:00", items: [ { subject: "Організація баз даних", type: "Lab", teacher: "Іванов Ю.С.", room: "505a2 V н.к.", subgroup: 1, week: "both" }, { subject: "Комп'ютерна схемотехніка", type: "Lab", teacher: "Черчик Г.Т.", room: "509 V н.к.", subgroup: 2, week: "both" } ] }
             ]
           },
           {
             day: "П'ятниця",
             lessons: [
-              {
-                id: 2, time: "10:05 - 11:25", items: [
-                  { subject: "Комп'ютерна схемотехніка", type: "Practical", teacher: "Черчик Г.Т.", room: "902 V н.к.", subgroup: "both", week: "numerator" },
-                  { subject: "Системне програмування, частина 1", type: "Practical", teacher: "Максимів М.Р.", room: "902 V н.к.", subgroup: "both", week: "denominator" }
-                ]
-              },
-              {
-                id: 3, time: "11:40 - 13:00", items: [
-                  { subject: "Комп'ютерна схемотехніка", type: "Lecture", teacher: "Паралюх І.П., Клушин Ю.С.", room: "512 V н.к.", subgroup: "both", week: "both" }
-                ]
-              }
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Комп'ютерна схемотехніка", type: "Practical", teacher: "Черчик Г.Т.", room: "902 V н.к.", subgroup: "both", week: "numerator" }, { subject: "Системне програмування, частина 1", type: "Practical", teacher: "Максимів М.Р.", room: "902 V н.к.", subgroup: "both", week: "denominator" } ] },
+              { id: 3, time: "11:40 - 13:00", items: [ { subject: "Комп'ютерна схемотехніка", type: "Lecture", teacher: "Паралюх І.П., Клушин Ю.С.", room: "512 V н.к.", subgroup: "both", week: "both" } ] }
             ]
           }
         ];
 
-        // --- 2. STATE MANAGEMENT ---
         const state = {
             weekType: 'numerator', 
             subgroup: 1 
         };
 
-        // --- 3. LOGIC ---
+        // --- OBSERVER FOR SCROLL TRACKING ---
+        let observer;
 
         function init() {
-            const autoWeek = calculateWeekType();
-            state.weekType = autoWeek;
-
+            state.weekType = calculateWeekType();
+            
             const savedSubgroup = localStorage.getItem('ki205_subgroup');
-            if (savedSubgroup) {
-                state.subgroup = parseInt(savedSubgroup);
-            }
+            if (savedSubgroup) state.subgroup = parseInt(savedSubgroup);
 
             updateTime();
             setInterval(updateTime, 1000);
@@ -441,21 +386,16 @@
             start.setHours(0,0,0,0);
             const current = new Date(now);
             current.setHours(0,0,0,0);
-
             const diffTime = current - start;
             if(diffTime < 0) return 'numerator'; 
-
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             const weekNumber = Math.floor(diffDays / 7);
-
             return (weekNumber % 2 === 0) ? 'numerator' : 'denominator';
         }
 
         function updateTime() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('clock').innerText = timeString;
-
+            document.getElementById('clock').innerText = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
             const options = { weekday: 'long', month: 'long', day: 'numeric' };
             const dateString = now.toLocaleDateString('uk-UA', options);
             document.getElementById('current-date').innerText = dateString.charAt(0).toUpperCase() + dateString.slice(1);
@@ -472,66 +412,74 @@
             updateUI();
         }
 
-        function updateUI() {
-            document.getElementById('btn-numerator').className = `toggle-btn ${state.weekType === 'numerator' ? 'active' : ''}`;
-            document.getElementById('btn-denominator').className = `toggle-btn ${state.weekType === 'denominator' ? 'active' : ''}`;
-            
-            document.getElementById('btn-sub1').className = `toggle-btn ${state.subgroup === 1 ? 'subgroup-active' : ''}`;
-            document.getElementById('btn-sub2').className = `toggle-btn ${state.subgroup === 2 ? 'subgroup-active' : ''}`;
-
-            document.getElementById('week-indicator').innerText = state.weekType === 'numerator' ? 'Чисельник' : 'Знаменник';
-
-            renderSchedule();
-        }
-
         function getDayIndex(dayName) {
             const map = { "Понеділок": 1, "Вівторок": 2, "Середа": 3, "Четвер": 4, "П'ятниця": 5 };
             return map[dayName] || 0;
         }
 
+        // --- RENDER LOGIC ---
+
+        function updateUI() {
+            // Update buttons
+            document.getElementById('btn-numerator').className = `toggle-btn ${state.weekType === 'numerator' ? 'active' : ''}`;
+            document.getElementById('btn-denominator').className = `toggle-btn ${state.weekType === 'denominator' ? 'active' : ''}`;
+            document.getElementById('btn-sub1').className = `toggle-btn ${state.subgroup === 1 ? 'subgroup-active' : ''}`;
+            document.getElementById('btn-sub2').className = `toggle-btn ${state.subgroup === 2 ? 'subgroup-active' : ''}`;
+            document.getElementById('week-indicator').innerText = state.weekType === 'numerator' ? 'Чисельник' : 'Знаменник';
+
+            renderSchedule();
+        }
+
         function renderSchedule() {
-            const container = document.getElementById('schedule-container');
-            container.innerHTML = '';
+            const carousel = document.getElementById('schedule-carousel');
+            const dotsContainer = document.getElementById('dots-container');
+            
+            carousel.innerHTML = '';
+            dotsContainer.innerHTML = '';
 
             const currentDayIndex = new Date().getDay(); 
+            let targetSlide = null;
 
-            scheduleData.forEach(dayData => {
+            scheduleData.forEach((dayData, index) => {
                 const dayIndex = getDayIndex(dayData.day);
                 const isToday = dayIndex === currentDayIndex;
 
-                const dayWrapper = document.createElement('div');
-                dayWrapper.className = 'day-card';
+                // Create Slide
+                const slide = document.createElement('div');
+                slide.className = 'day-slide';
+                slide.id = `slide-${index}`;
                 
+                // Build Header
                 const headerHtml = `
                     <div class="day-header ${isToday ? 'is-today' : ''}">
                         <h2>${dayData.day}</h2>
                         ${isToday ? '<span class="label-today">Сьогодні</span>' : ''}
                     </div>
                 `;
-                dayWrapper.innerHTML = headerHtml;
+                slide.innerHTML = headerHtml;
 
-                let hasLessonsForSomeone = false;
-
+                // Build Lessons
+                let hasContent = false;
+                
                 dayData.lessons.forEach(lessonSlot => {
                     const myLesson = lessonSlot.items.find(item => 
                         (item.week === 'both' || item.week === state.weekType) && 
                         (item.subgroup === 'both' || item.subgroup === state.subgroup)
                     );
-
+                    
                     const anyLessonAtAll = lessonSlot.items.length > 0;
 
                     if (myLesson) {
-                        hasLessonsForSomeone = true;
-                        dayWrapper.innerHTML += createLessonCard(myLesson, lessonSlot.time);
+                        hasContent = true;
+                        slide.innerHTML += createLessonCard(myLesson, lessonSlot.time);
                     } else if (anyLessonAtAll) {
                         const otherLesson = lessonSlot.items.find(item => 
                            (item.week === 'both' || item.week === state.weekType) && 
                            (item.subgroup !== 'both' && item.subgroup !== state.subgroup)
                         );
-                        
                         if(otherLesson) {
-                             hasLessonsForSomeone = true;
-                             dayWrapper.innerHTML += `
+                             hasContent = true;
+                             slide.innerHTML += `
                                 <div class="lesson-card free-window">
                                     <span>Вікно (${lessonSlot.time})</span>
                                 </div>
@@ -540,9 +488,61 @@
                     }
                 });
 
-                if (hasLessonsForSomeone) {
-                    container.appendChild(dayWrapper);
+                if(!hasContent) {
+                    slide.innerHTML += '<div class="empty-day-msg">Пар немає 🎉</div>';
                 }
+
+                carousel.appendChild(slide);
+
+                // Create Dot
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.onclick = () => {
+                    slide.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+                };
+                dotsContainer.appendChild(dot);
+
+                // Check if this is the target slide to scroll to (Today)
+                if(isToday) targetSlide = slide;
+            });
+
+            // Re-attach Intersection Observer for Dots
+            setupObserver();
+
+            // Auto-scroll to today if found, otherwise start
+            if(targetSlide) {
+                // Slight timeout ensures DOM is ready for scroll
+                setTimeout(() => targetSlide.scrollIntoView({ inline: 'start' }), 100);
+            }
+        }
+
+        function setupObserver() {
+            if(observer) observer.disconnect();
+
+            const options = {
+                root: document.getElementById('schedule-carousel'),
+                threshold: 0.5 
+            };
+
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const index = entry.target.id.split('-')[1];
+                        updateDots(index);
+                    }
+                });
+            }, options);
+
+            document.querySelectorAll('.day-slide').forEach(slide => {
+                observer.observe(slide);
+            });
+        }
+
+        function updateDots(activeIndex) {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, idx) => {
+                if(idx == activeIndex) dot.classList.add('active');
+                else dot.classList.remove('active');
             });
         }
 
@@ -557,7 +557,6 @@
             if(typeLabel === 'Lecture') typeLabel = 'Лекція';
             if(typeLabel === 'Practical') typeLabel = 'Практична';
 
-            // Updated HTML structure for Flexbox layout
             return `
                 <div class="lesson-card">
                     <div class="lesson-header-row">
