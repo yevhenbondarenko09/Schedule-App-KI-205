@@ -34,7 +34,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Prevent body scroll, handle in containers */
+            overflow: hidden;
         }
 
         /* --- Header --- */
@@ -110,29 +110,26 @@
             position: relative;
         }
 
-        /* The Scroll Snap Track */
         #schedule-carousel {
             flex: 1;
             display: flex;
             overflow-x: auto;
-            overflow-y: hidden; /* Lock vertical scroll on track */
+            overflow-y: hidden;
             scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        #schedule-carousel::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
-        }
+        #schedule-carousel::-webkit-scrollbar { display: none; }
 
         /* --- Slide (Day) Styles --- */
         .day-slide {
-            flex: 0 0 100%; /* Full width */
+            flex: 0 0 100%;
             width: 100%;
             scroll-snap-align: start;
-            overflow-y: auto; /* Vertical scroll inside the slide */
+            overflow-y: auto;
             padding: 20px;
-            padding-bottom: 60px; /* Space for dots */
+            padding-bottom: 60px;
         }
 
         .day-header {
@@ -163,7 +160,7 @@
             text-transform: uppercase;
         }
 
-        /* --- Lesson Card (Redesigned) --- */
+        /* --- Lesson Card Styles --- */
         .lesson-card {
             background-color: var(--card-bg);
             border-radius: 20px;
@@ -173,13 +170,28 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* Flex container for Subject + Time */
         .lesson-header-row {
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Center vertically relative to text */
-            gap: 15px;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 12px;
+        }
+
+        /* NEW STYLE: Lesson Number Badge */
+        .lesson-number {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--soft-blue);
+            min-width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            border: 1px solid rgba(150, 164, 197, 0.3);
         }
 
         .lesson-subject {
@@ -187,15 +199,12 @@
             font-weight: 700;
             line-height: 1.4;
             color: var(--text-main);
-            
-            /* CHANGE: Allow full wrapping */
             flex: 1;
             white-space: normal; 
             word-wrap: break-word;
         }
 
         .lesson-time {
-            /* CHANGE: Fixed width/shrink behavior */
             flex-shrink: 0;
             font-size: 0.85rem;
             font-weight: 700;
@@ -211,6 +220,7 @@
             gap: 8px;
             margin-bottom: 12px;
             flex-wrap: wrap;
+            padding-left: 36px; /* Indent tags to align with text, considering badge width */
         }
 
         .tag {
@@ -234,17 +244,21 @@
             color: var(--text-muted);
             border-top: 1px solid rgba(255,255,255,0.05);
             padding-top: 10px;
+            padding-left: 36px; /* Indent details as well */
         }
 
         .free-window {
             border: 2px dashed rgba(150, 164, 197, 0.3);
-            text-align: center;
-            padding: 30px;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
             color: var(--text-muted);
             font-style: italic;
         }
 
-        /* --- Carousel Indicators (Dots) --- */
+        /* --- Indicators --- */
         .carousel-indicators {
             position: absolute;
             bottom: 20px;
@@ -254,7 +268,7 @@
             justify-content: center;
             gap: 8px;
             z-index: 50;
-            pointer-events: none; /* Let clicks pass through if needed, though usually dots are clickable */
+            pointer-events: none;
         }
 
         .dot {
@@ -272,7 +286,6 @@
             transform: scale(1.3);
         }
 
-        /* Empty state helper */
         .empty-day-msg {
             text-align: center;
             margin-top: 50px;
@@ -306,17 +319,11 @@
     </header>
 
     <main>
-        <!-- Horizontal Scroll Snap Container -->
-        <div id="schedule-carousel">
-            <!-- Slides injected by JS -->
-        </div>
-
-        <!-- Dots -->
+        <div id="schedule-carousel"></div>
         <div class="carousel-indicators" id="dots-container"></div>
     </main>
 
     <script>
-        // --- DATA & CONFIG ---
         const SEMESTER_START = new Date("2026-02-09T00:00:00"); 
         
         const scheduleData = [
@@ -361,20 +368,13 @@
           }
         ];
 
-        const state = {
-            weekType: 'numerator', 
-            subgroup: 1 
-        };
-
-        // --- OBSERVER FOR SCROLL TRACKING ---
+        const state = { weekType: 'numerator', subgroup: 1 };
         let observer;
 
         function init() {
             state.weekType = calculateWeekType();
-            
             const savedSubgroup = localStorage.getItem('ki205_subgroup');
             if (savedSubgroup) state.subgroup = parseInt(savedSubgroup);
-
             updateTime();
             setInterval(updateTime, 1000);
             updateUI();
@@ -417,16 +417,12 @@
             return map[dayName] || 0;
         }
 
-        // --- RENDER LOGIC ---
-
         function updateUI() {
-            // Update buttons
             document.getElementById('btn-numerator').className = `toggle-btn ${state.weekType === 'numerator' ? 'active' : ''}`;
             document.getElementById('btn-denominator').className = `toggle-btn ${state.weekType === 'denominator' ? 'active' : ''}`;
             document.getElementById('btn-sub1').className = `toggle-btn ${state.subgroup === 1 ? 'subgroup-active' : ''}`;
             document.getElementById('btn-sub2').className = `toggle-btn ${state.subgroup === 2 ? 'subgroup-active' : ''}`;
             document.getElementById('week-indicator').innerText = state.weekType === 'numerator' ? 'Чисельник' : 'Знаменник';
-
             renderSchedule();
         }
 
@@ -444,12 +440,10 @@
                 const dayIndex = getDayIndex(dayData.day);
                 const isToday = dayIndex === currentDayIndex;
 
-                // Create Slide
                 const slide = document.createElement('div');
                 slide.className = 'day-slide';
                 slide.id = `slide-${index}`;
                 
-                // Build Header
                 const headerHtml = `
                     <div class="day-header ${isToday ? 'is-today' : ''}">
                         <h2>${dayData.day}</h2>
@@ -458,7 +452,6 @@
                 `;
                 slide.innerHTML = headerHtml;
 
-                // Build Lessons
                 let hasContent = false;
                 
                 dayData.lessons.forEach(lessonSlot => {
@@ -471,7 +464,8 @@
 
                     if (myLesson) {
                         hasContent = true;
-                        slide.innerHTML += createLessonCard(myLesson, lessonSlot.time);
+                        // UPDATED: Passing ID
+                        slide.innerHTML += createLessonCard(myLesson, lessonSlot.time, lessonSlot.id);
                     } else if (anyLessonAtAll) {
                         const otherLesson = lessonSlot.items.find(item => 
                            (item.week === 'both' || item.week === state.weekType) && 
@@ -481,6 +475,7 @@
                              hasContent = true;
                              slide.innerHTML += `
                                 <div class="lesson-card free-window">
+                                    <div class="lesson-number">${lessonSlot.id}</div>
                                     <span>Вікно (${lessonSlot.time})</span>
                                 </div>
                              `;
@@ -494,36 +489,23 @@
 
                 carousel.appendChild(slide);
 
-                // Create Dot
                 const dot = document.createElement('div');
                 dot.className = 'dot';
-                dot.onclick = () => {
-                    slide.scrollIntoView({ behavior: 'smooth', inline: 'start' });
-                };
+                dot.onclick = () => { slide.scrollIntoView({ behavior: 'smooth', inline: 'start' }); };
                 dotsContainer.appendChild(dot);
 
-                // Check if this is the target slide to scroll to (Today)
                 if(isToday) targetSlide = slide;
             });
 
-            // Re-attach Intersection Observer for Dots
             setupObserver();
-
-            // Auto-scroll to today if found, otherwise start
             if(targetSlide) {
-                // Slight timeout ensures DOM is ready for scroll
                 setTimeout(() => targetSlide.scrollIntoView({ inline: 'start' }), 100);
             }
         }
 
         function setupObserver() {
             if(observer) observer.disconnect();
-
-            const options = {
-                root: document.getElementById('schedule-carousel'),
-                threshold: 0.5 
-            };
-
+            const options = { root: document.getElementById('schedule-carousel'), threshold: 0.5 };
             observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -532,21 +514,18 @@
                     }
                 });
             }, options);
-
-            document.querySelectorAll('.day-slide').forEach(slide => {
-                observer.observe(slide);
-            });
+            document.querySelectorAll('.day-slide').forEach(slide => observer.observe(slide));
         }
 
         function updateDots(activeIndex) {
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((dot, idx) => {
+            document.querySelectorAll('.dot').forEach((dot, idx) => {
                 if(idx == activeIndex) dot.classList.add('active');
                 else dot.classList.remove('active');
             });
         }
 
-        function createLessonCard(item, time) {
+        // UPDATED: Added ID parameter
+        function createLessonCard(item, time, id) {
             let typeClass = '';
             if(item.type.includes('Lab')) typeClass = 'lab';
             else if(item.type.includes('Lecture')) typeClass = 'lecture';
@@ -560,6 +539,8 @@
             return `
                 <div class="lesson-card">
                     <div class="lesson-header-row">
+                        <!-- Added Lesson Number Badge -->
+                        <div class="lesson-number">${id}</div>
                         <div class="lesson-subject">${item.subject}</div>
                         <div class="lesson-time">${time}</div>
                     </div>
@@ -580,7 +561,6 @@
         }
 
         init();
-
     </script>
 </body>
 </html>
