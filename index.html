@@ -6,7 +6,7 @@
     <title>Розклад КІ-205</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -32,19 +32,19 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 40px;
+            padding-bottom: 60px; /* Increased bottom padding */
         }
 
         /* --- Header & Controls --- */
         header {
-            background-color: rgba(46, 54, 90, 0.95);
-            padding: 20px 20px 10px;
+            background-color: rgba(46, 54, 90, 0.98);
+            padding: 20px 20px 15px;
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(150, 164, 197, 0.1);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(150, 164, 197, 0.15);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
         .top-bar {
@@ -64,6 +64,7 @@
             font-size: 0.85rem;
             color: var(--soft-blue);
             text-align: right;
+            line-height: 1.4;
         }
 
         .controls-grid {
@@ -74,11 +75,10 @@
 
         /* --- Toggles --- */
         .toggle-container {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.25);
             border-radius: 50px;
             padding: 4px;
             display: flex;
-            position: relative;
         }
 
         .toggle-btn {
@@ -86,12 +86,12 @@
             background: transparent;
             border: none;
             color: var(--soft-blue);
-            padding: 8px 0;
-            font-size: 0.8rem;
+            padding: 10px 0; /* Slightly larger touch target */
+            font-size: 0.75rem;
             font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             text-align: center;
         }
 
@@ -104,31 +104,41 @@
         .toggle-btn.subgroup-active {
             background-color: var(--accent-pink);
             color: white;
+            box-shadow: 0 2px 8px rgba(224, 121, 127, 0.3);
         }
 
         /* --- Schedule List --- */
         .container {
-            padding: 20px;
+            padding: 10px 20px;
             max-width: 600px;
             margin: 0 auto;
         }
 
+        /* Task 2: Improved Visual Day Separation */
         .day-card {
-            margin-bottom: 25px;
+            margin-top: 40px; /* Critical Fix: Adds breathing room between days */
             animation: fadeIn 0.5s ease;
+        }
+
+        /* Remove margin from the very first day to sit nice under header */
+        .day-card:first-child {
+            margin-top: 20px;
         }
 
         .day-header {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
-            padding-left: 10px;
-            border-left: 4px solid var(--soft-blue);
+            margin-bottom: 16px;
+            padding-left: 12px;
+            border-left: 5px solid var(--soft-blue);
         }
 
         .day-header h2 {
-            font-size: 1.2rem;
-            margin-right: 10px;
+            font-size: 1.4rem; /* Critical Fix: Larger font */
+            font-weight: 800;  /* Critical Fix: Bolder font */
+            margin-right: 12px;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
         }
 
         .day-header.is-today h2 {
@@ -139,44 +149,77 @@
             border-left-color: var(--accent-pink);
         }
 
+        .label-today {
+            font-size: 0.75rem;
+            background: var(--accent-pink);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- Lesson Card Styles --- */
         .lesson-card {
             background-color: var(--card-bg);
             border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
+            padding: 18px; /* Slightly more padding */
+            margin-bottom: 14px;
             border: 1px solid rgba(150, 164, 197, 0.1);
-            position: relative;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            /* Layout is now flow-based, not absolute */
         }
 
         .lesson-card:active {
             transform: scale(0.98);
         }
 
-        .lesson-time {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--soft-blue);
-            background: rgba(0,0,0,0.2);
-            padding: 4px 10px;
-            border-radius: 12px;
+        /* Task 1: Fix Text Overlap via Flexbox */
+        .lesson-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Aligns top so multi-line text doesn't center the time */
+            gap: 15px; /* Minimum space between text and time */
+            margin-bottom: 10px;
         }
 
         .lesson-subject {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            margin-bottom: 8px;
-            padding-right: 80px; /* Space for time */
-            line-height: 1.4;
+            line-height: 1.35;
+            color: var(--text-main);
+            
+            /* Critical Fix: Handling overflow flex-item behavior */
+            flex: 1;        /* Take up remaining space */
+            min-width: 0;   /* Allow shrinking below content size if needed */
+            
+            /* Truncate nicely with ellipsis on 2nd line if needed */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lesson-time {
+            /* Critical Fix: Prevent time from shrinking or wrapping */
+            flex-shrink: 0;
+            white-space: nowrap;
+            
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--soft-blue);
+            background: rgba(0,0,0,0.25);
+            padding: 6px 12px;
+            border-radius: 12px;
+            height: fit-content;
         }
 
         .tags {
             display: flex;
             gap: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
         }
 
@@ -186,18 +229,22 @@
             border-radius: 8px;
             font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .tag.lecture { background-color: rgba(108, 94, 130, 0.3); color: #C4B5D6; border: 1px solid var(--secondary-color); }
         .tag.lab { background-color: rgba(224, 121, 127, 0.2); color: var(--accent-pink); border: 1px solid var(--accent-pink); }
         .tag.practical { background-color: rgba(108, 174, 130, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .tag.room { background: rgba(150, 164, 197, 0.15); border: 1px solid var(--soft-blue); color: var(--soft-blue); }
 
         .lesson-details {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            font-size: 0.85rem;
+            gap: 6px;
+            font-size: 0.9rem;
             color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 10px;
         }
 
         .detail-row {
@@ -215,7 +262,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
             color: var(--text-muted);
             font-style: italic;
         }
@@ -236,7 +283,7 @@
             <div class="current-time" id="clock">00:00</div>
             <div class="date-info">
                 <div id="current-date">...</div>
-                <div style="font-weight:bold; color: var(--accent-pink);" id="week-indicator">...</div>
+                <div style="font-weight:700; color: var(--accent-pink); margin-top: 2px;" id="week-indicator">...</div>
             </div>
         </div>
 
@@ -263,7 +310,6 @@
         // --- 1. CONFIGURATION & DATA ---
         const SEMESTER_START = new Date("2026-02-09T00:00:00"); 
         
-        // Exact Data Structure provided
         const scheduleData = [
           {
             day: "Понеділок",
@@ -369,58 +415,47 @@
 
         // --- 2. STATE MANAGEMENT ---
         const state = {
-            weekType: 'numerator', // 'numerator' | 'denominator'
-            subgroup: 1 // 1 | 2
+            weekType: 'numerator', 
+            subgroup: 1 
         };
 
         // --- 3. LOGIC ---
 
         function init() {
-            // 1. Calculate current week type automatically
             const autoWeek = calculateWeekType();
             state.weekType = autoWeek;
 
-            // 2. Load subgroup from LocalStorage
             const savedSubgroup = localStorage.getItem('ki205_subgroup');
             if (savedSubgroup) {
                 state.subgroup = parseInt(savedSubgroup);
             }
 
-            // 3. Start Clock
             updateTime();
             setInterval(updateTime, 1000);
-
-            // 4. Initial Render
             updateUI();
         }
 
         function calculateWeekType() {
             const now = new Date();
-            // Reset times to midnight to avoid hour calculation issues
             const start = new Date(SEMESTER_START);
             start.setHours(0,0,0,0);
             const current = new Date(now);
             current.setHours(0,0,0,0);
 
             const diffTime = current - start;
-            if(diffTime < 0) return 'numerator'; // Before semester starts
+            if(diffTime < 0) return 'numerator'; 
 
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             const weekNumber = Math.floor(diffDays / 7);
 
-            // Even weeks (0, 2, 4...) relative to start are Numerator
-            // Odd weeks (1, 3, 5...) relative to start are Denominator
             return (weekNumber % 2 === 0) ? 'numerator' : 'denominator';
         }
 
         function updateTime() {
             const now = new Date();
-            
-            // Clock
             const timeString = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('clock').innerText = timeString;
 
-            // Date
             const options = { weekday: 'long', month: 'long', day: 'numeric' };
             const dateString = now.toLocaleDateString('uk-UA', options);
             document.getElementById('current-date').innerText = dateString.charAt(0).toUpperCase() + dateString.slice(1);
@@ -438,7 +473,6 @@
         }
 
         function updateUI() {
-            // Update Controls Visuals
             document.getElementById('btn-numerator').className = `toggle-btn ${state.weekType === 'numerator' ? 'active' : ''}`;
             document.getElementById('btn-denominator').className = `toggle-btn ${state.weekType === 'denominator' ? 'active' : ''}`;
             
@@ -459,53 +493,42 @@
             const container = document.getElementById('schedule-container');
             container.innerHTML = '';
 
-            const currentDayIndex = new Date().getDay(); // 0=Sun, 1=Mon...
+            const currentDayIndex = new Date().getDay(); 
 
             scheduleData.forEach(dayData => {
                 const dayIndex = getDayIndex(dayData.day);
                 const isToday = dayIndex === currentDayIndex;
 
-                // Create Day Wrapper
                 const dayWrapper = document.createElement('div');
                 dayWrapper.className = 'day-card';
                 
                 const headerHtml = `
                     <div class="day-header ${isToday ? 'is-today' : ''}">
                         <h2>${dayData.day}</h2>
-                        ${isToday ? '<span style="font-size:0.8rem; background:var(--accent-pink); padding:2px 8px; border-radius:10px;">Сьогодні</span>' : ''}
+                        ${isToday ? '<span class="label-today">Сьогодні</span>' : ''}
                     </div>
                 `;
                 dayWrapper.innerHTML = headerHtml;
 
                 let hasLessonsForSomeone = false;
 
-                // Process Lessons
                 dayData.lessons.forEach(lessonSlot => {
-                    // Logic: 
-                    // 1. Check if there are lessons for *selected* group in *current* week
                     const myLesson = lessonSlot.items.find(item => 
                         (item.week === 'both' || item.week === state.weekType) && 
                         (item.subgroup === 'both' || item.subgroup === state.subgroup)
                     );
 
-                    // 2. Check if there are lessons for *any* group (to detect empty window vs end of day)
-                    // Actually, the prompt says: "If a timeslot has no lessons for the selected subgroup (but has for the other), show Free Window".
-                    // So we check if there are ANY items for this slot in the JSON generally? 
-                    // The JSON structure has `items` array. If that array has items, a class exists at this time.
                     const anyLessonAtAll = lessonSlot.items.length > 0;
 
                     if (myLesson) {
                         hasLessonsForSomeone = true;
                         dayWrapper.innerHTML += createLessonCard(myLesson, lessonSlot.time);
                     } else if (anyLessonAtAll) {
-                        // Check if the reason we don't have a lesson is simply because it's for the other subgroup/week
-                        // If the slot exists in JSON, it means *someone* has class. If I don't, I have a window.
                         const otherLesson = lessonSlot.items.find(item => 
                            (item.week === 'both' || item.week === state.weekType) && 
                            (item.subgroup !== 'both' && item.subgroup !== state.subgroup)
                         );
                         
-                        // Only show window if it's the right week but wrong subgroup
                         if(otherLesson) {
                              hasLessonsForSomeone = true;
                              dayWrapper.innerHTML += `
@@ -517,7 +540,6 @@
                     }
                 });
 
-                // Only append day if it has content
                 if (hasLessonsForSomeone) {
                     container.appendChild(dayWrapper);
                 }
@@ -535,14 +557,17 @@
             if(typeLabel === 'Lecture') typeLabel = 'Лекція';
             if(typeLabel === 'Practical') typeLabel = 'Практична';
 
+            // Updated HTML structure for Flexbox layout
             return `
                 <div class="lesson-card">
-                    <div class="lesson-time">${time}</div>
-                    <div class="lesson-subject">${item.subject}</div>
+                    <div class="lesson-header-row">
+                        <div class="lesson-subject">${item.subject}</div>
+                        <div class="lesson-time">${time}</div>
+                    </div>
                     
                     <div class="tags">
                         <span class="tag ${typeClass}">${typeLabel}</span>
-                        <span class="tag" style="background: rgba(150, 164, 197, 0.2); border: 1px solid var(--soft-blue); color: var(--soft-blue);">${item.room}</span>
+                        <span class="tag room">${item.room}</span>
                     </div>
 
                     <div class="lesson-details">
@@ -555,7 +580,6 @@
             `;
         }
 
-        // Run
         init();
 
     </script>
