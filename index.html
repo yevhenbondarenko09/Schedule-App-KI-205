@@ -374,13 +374,24 @@
           }
         ];
 
-        const state = { weekType: 'numerator', subgroup: 1 };
+        const state = { weekType: 'numerator', subgroup: 1, activeIndex: 0 };
         let observer;
 
         function init() {
             state.weekType = calculateWeekType();
             const savedSubgroup = localStorage.getItem('ki205_subgroup');
             if (savedSubgroup) state.subgroup = parseInt(savedSubgroup);
+
+            // ЛОГІКА СТАРТУ: Визначаємо день один раз при запуску
+            const dayOfWeek = new Date().getDay(); // 0=Нд, 1=Пн...
+            // Якщо вихідні -> понеділок (0), інакше день - 1
+            let startIndex = (dayOfWeek === 0 || dayOfWeek === 6) ? 0 : dayOfWeek - 1;
+            // Страховка від помилок (щоб було в межах 0-4)
+            if (startIndex < 0) startIndex = 0;
+            if (startIndex > 4) startIndex = 4;
+            
+            state.activeIndex = startIndex;
+
             updateTime();
             setInterval(updateTime, 1000);
             updateUI();
@@ -470,7 +481,6 @@
 
                     if (myLesson) {
                         hasContent = true;
-                        // UPDATED: Passing ID
                         slide.innerHTML += createLessonCard(myLesson, lessonSlot.time, lessonSlot.id);
                     } else if (anyLessonAtAll) {
                         const otherLesson = lessonSlot.items.find(item => 
@@ -497,25 +507,38 @@
 
                 const dot = document.createElement('div');
                 dot.className = 'dot';
-                dot.onclick = () => { slide.scrollIntoView({ behavior: 'smooth', inline: 'start' }); };
+                
+                // ОНОВЛЕНО: При кліку на точку теж оновлюємо state
+                dot.onclick = () => { 
+                    state.activeIndex = index;
+                    slide.scrollIntoView({ behavior: 'smooth', inline: 'start' }); 
+                };
                 dotsContainer.appendChild(dot);
 
-                if(isToday) targetSlide = slide;
+                // ОНОВЛЕНО: Шукаємо слайд не по isToday, а по збереженому activeIndex
+                if(index === state.activeIndex) targetSlide = slide;
             });
 
             setupObserver();
+            
+            // ОНОВЛЕНО: Миттєвий перехід до збереженого слайду (без анімації, щоб не дратувало)
             if(targetSlide) {
-                setTimeout(() => targetSlide.scrollIntoView({ inline: 'start' }), 100);
+                targetSlide.scrollIntoView({ behavior: 'auto', inline: 'start' });
             }
         }
 
         function setupObserver() {
             if(observer) observer.disconnect();
-            const options = { root: document.getElementById('schedule-carousel'), threshold: 0.5 };
+            const options = { root: document.getElementById('schedule-carousel'), threshold: 0.6 };
+            
             observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        const index = entry.target.id.split('-')[1];
+                        const index = parseInt(entry.target.id.split('-')[1]);
+                        
+                        // ОНОВЛЕНО: Запам'ятовуємо, де ми зараз
+                        state.activeIndex = index;
+                        
                         updateDots(index);
                     }
                 });
