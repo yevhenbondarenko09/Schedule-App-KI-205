@@ -435,11 +435,19 @@
         }
 
         function updateUI() {
+            // Оновлюємо вигляд кнопок (це залишається залежним від вибору користувача)
             document.getElementById('btn-numerator').className = `toggle-btn ${state.weekType === 'numerator' ? 'active' : ''}`;
             document.getElementById('btn-denominator').className = `toggle-btn ${state.weekType === 'denominator' ? 'active' : ''}`;
+            
             document.getElementById('btn-sub1').className = `toggle-btn ${state.subgroup === 1 ? 'subgroup-active' : ''}`;
             document.getElementById('btn-sub2').className = `toggle-btn ${state.subgroup === 2 ? 'subgroup-active' : ''}`;
-            document.getElementById('week-indicator').innerText = state.weekType === 'numerator' ? 'Чисельник' : 'Знаменник';
+
+            // --- ЗМІНА ТУТ ---
+            // Ми ігноруємо те, що натиснув користувач (state.weekType), 
+            // і обчислюємо реальний тиждень на основі дати
+            const realWeek = calculateWeekType(); 
+            document.getElementById('week-indicator').innerText = realWeek === 'numerator' ? 'Чисельник' : 'Знаменник';
+
             renderSchedule();
         }
 
