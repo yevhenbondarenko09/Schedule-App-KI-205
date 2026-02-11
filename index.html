@@ -239,7 +239,7 @@
         .tag.lab { background-color: rgba(224, 121, 127, 0.2); color: var(--accent-pink); border: 1px solid var(--accent-pink); }
         .tag.practical { background-color: rgba(108, 174, 130, 0.2); color: var(--success); border: 1px solid var(--success); }
         .tag.room { background: rgba(150, 164, 197, 0.15); border: 1px solid var(--soft-blue); color: var(--soft-blue); }
-
+        .tag.remote { background: rgba(55, 122, 35, 0.437); border: 1px solid var(--accent-blue);  color: var(--text-main);  }
         .lesson-details {
             display: flex;
             flex-direction: column;
@@ -346,7 +346,7 @@
             day: "Вівторок",
             lessons: [
               { id: 1, time: "08:30 - 09:50", items: [ { subject: "Системне програмування, частина 1", type: "Lecture", teacher: "Пуйда Д.В.", room: "512 V н.к.", subgroup: "both", week: "both" } ] },
-              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Організація баз даних", type: "Lecture", teacher: "Колодчак О.М.", room: "906 V н.к.", subgroup: "both", week: "both" } ] },
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Організація баз даних", type: "Lecture", teacher: "Колодчак О.М.", room: "906 V н.к.", subgroup: "both", week: "both", remote:true } ] },
               { id: 3, time: "11:40 - 13:00", items: [ { subject: "Філософія", type: "Practical", teacher: "Панько О.І.", room: "902 V н.к.", subgroup: "both", week: "numerator" } ] }
             ]
           },
@@ -354,7 +354,7 @@
             day: "Середа",
             lessons: [
               { id: 1, time: "08:30 - 09:50", items: [ { subject: "Моделювання комп'ютерних систем", type: "Lecture", teacher: "Будз І.С.", room: "906 V н.к.", subgroup: "both", week: "both" } ] },
-              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 1, week: "numerator" }, { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 2, week: "denominator" } ] }
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 1, week: "numerator", remote:true }, { subject: "Системне програмування, частина 1", type: "Lab", teacher: "Максимів М.Р.", room: "505a2 V н.к.", subgroup: 2, week: "denominator", remote:true } ] }
             ]
           },
           {
@@ -368,7 +368,7 @@
           {
             day: "П'ятниця",
             lessons: [
-              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Комп'ютерна схемотехніка", type: "Practical", teacher: "Черчик Г.Т.", room: "902 V н.к.", subgroup: "both", week: "numerator" }, { subject: "Системне програмування, частина 1", type: "Practical", teacher: "Максимів М.Р.", room: "902 V н.к.", subgroup: "both", week: "denominator" } ] },
+              { id: 2, time: "10:05 - 11:25", items: [ { subject: "Комп'ютерна схемотехніка", type: "Practical", teacher: "Черчик Г.Т.", room: "902 V н.к.", subgroup: "both", week: "numerator" }, { subject: "Системне програмування, частина 1", type: "Practical", teacher: "Максимів М.Р.", room: "902 V н.к.", subgroup: "both", week: "denominator", remote:true } ] },
               { id: 3, time: "11:40 - 13:00", items: [ { subject: "Комп'ютерна схемотехніка", type: "Lecture", teacher: "Паралюх І.П., Клушин Ю.С.", room: "512 V н.к.", subgroup: "both", week: "both" } ] }
             ]
           }
@@ -531,7 +531,7 @@
         }
 
         // UPDATED: Added ID parameter
-        function createLessonCard(item, time, id) {
+      function createLessonCard(item, time, id) {
             let typeClass = '';
             if(item.type.includes('Lab')) typeClass = 'lab';
             else if(item.type.includes('Lecture')) typeClass = 'lecture';
@@ -542,10 +542,13 @@
             if(typeLabel === 'Lecture') typeLabel = 'Лекція';
             if(typeLabel === 'Practical') typeLabel = 'Практична';
 
+            // ЛОГІКА ДЛЯ ДИСТАНЦІЙНОГО ТЕГУ
+            // Якщо в даних є remote: true, додаємо HTML тег
+            const remoteTag = item.remote ? '<span class="tag remote">Дистанційно</span>' : '';
+
             return `
                 <div class="lesson-card">
                     <div class="lesson-header-row">
-                        <!-- Added Lesson Number Badge -->
                         <div class="lesson-number">${id}</div>
                         <div class="lesson-subject">${item.subject}</div>
                         <div class="lesson-time">${time}</div>
@@ -554,6 +557,7 @@
                     <div class="tags">
                         <span class="tag ${typeClass}">${typeLabel}</span>
                         <span class="tag room">${item.room}</span>
+                        ${remoteTag} <!-- Вставка тегу тут -->
                     </div>
 
                     <div class="lesson-details">
